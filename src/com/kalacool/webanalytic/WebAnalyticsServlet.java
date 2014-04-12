@@ -13,8 +13,15 @@ import com.google.appengine.api.datastore.Entity;
 
 
 
-@SuppressWarnings("serial")
+
 public class WebAnalyticsServlet extends HttpServlet {
+
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4567486857635269829L;
+
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		resp.setContentType("text/plain");
 		
@@ -60,21 +67,6 @@ public class WebAnalyticsServlet extends HttpServlet {
 		}
 		datastore.put(entity);
 
-
-/**
- * 				Prepare for query
- * 
-		Query q = new Query("unit");
-		PreparedQuery pq = datastore.prepare(q);
-		if(pq!=null)
-			for (Entity result : pq.asIterable()) {
-				
-			}
-		else
-			resp.getWriter().println("query is null");
-*
-*
-**/
 
 	}
 }

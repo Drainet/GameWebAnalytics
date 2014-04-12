@@ -8,9 +8,17 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-name>WebAnalytics</servlet-name>
 		<servlet-class>com.kalacool.webanalytic.WebAnalyticsServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>AnalyticData</servlet-name>
+		<servlet-class>com.kalacool.analyticdata.AnalyticDataServlet</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>WebAnalytics</servlet-name>
 		<url-pattern>/webanalytics</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AnalyticData</servlet-name>
+		<url-pattern>/analyticdata</url-pattern>
 	</servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
