@@ -6,11 +6,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.labs.repackaged.org.json.JSONArray;
 import com.google.appengine.labs.repackaged.org.json.JSONException;
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
@@ -23,6 +26,7 @@ public class AnalyticDataServlet extends HttpServlet{
 	 * 
 	 */
 	private static final long serialVersionUID = 469453243451966141L;
+	private Cursor cursor;
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		resp.setContentType("text/plain");
@@ -35,14 +39,33 @@ public class AnalyticDataServlet extends HttpServlet{
 			q = new Query("default");
 		}
 		
+		String cursorStr = req.getParameter("cursor");
+		
+		
+		if(cursorStr!=null)
+			cursor = Cursor.fromWebSafeString(cursorStr);
+		else
+			cursor = null;
+		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		
 		PreparedQuery pq = datastore.prepare(q);
-		if(pq!=null)
+		FetchOptions fetchOptions;
+		if(cursor!=null)
+			fetchOptions = FetchOptions.Builder.withLimit(10).startCursor(cursor);
+		else
+			fetchOptions = FetchOptions.Builder.withLimit(10);
+		
+		
+		QueryResultList<Entity> results = pq.asQueryResultList(fetchOptions);
+		
+		if(results!=null)
 		{
 			JSONArray JSONAry = new JSONArray();
 			Gson gson = new Gson();
-			for (Entity result : pq.asIterable()) {
+			for (Entity result : results) {
+				
+				
 				JSONObject jsonObject = new JSONObject();
 				try {
 					jsonObject = new JSONObject(gson.toJson(result));
@@ -51,9 +74,21 @@ public class AnalyticDataServlet extends HttpServlet{
 					e.printStackTrace();
 				}
 			}
+			JSONObject jsonObject = new JSONObject();
+			try {
+				jsonObject.put("data",JSONAry);
+				JSONObject cursorJson = new JSONObject();
+				cursorJson.put("cursor", results.getCursor().toWebSafeString());
+				
+				
+				jsonObject.put("info", cursorJson);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 			
-			if(JSONAry!=null)
-				resp.getWriter().println(JSONAry.toString());
+			
+			if(jsonObject!=null)
+				resp.getWriter().println(jsonObject.toString());
 		}
 		else
 			resp.getWriter().println("query is null");
