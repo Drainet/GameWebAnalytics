@@ -58,6 +58,7 @@ public class AnalyticDataServlet extends HttpServlet{
 		else
 			resp.getWriter().println("query is null");
 		
+		
 	}
 
 }

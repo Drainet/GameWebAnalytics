@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
 
 
 
@@ -30,17 +31,18 @@ public class WebAnalyticsServlet extends HttpServlet {
 		Entity entity;
 		String entityType[] = req.getParameterValues("Entity");
 		
+		
 		if(entityType!=null&&entityType[0]!=null){
 			entity = new Entity(entityType[0]);
 		}else{
 			entity = new Entity("default");
 		}
-		
 
-		@SuppressWarnings("rawtypes")
-		Enumeration paramNames = req.getParameterNames();
+
+		@SuppressWarnings("unchecked")
+		Enumeration<String> paramNames = req.getParameterNames();
 		while(paramNames.hasMoreElements()){
-			String paramName = (String)paramNames.nextElement();
+			String paramName = paramNames.nextElement();
 			if(!paramName.equals("Entity")){
 				String[] paramValues = req.getParameterValues(paramName);
 				if (paramValues.length == 1)
@@ -66,6 +68,15 @@ public class WebAnalyticsServlet extends HttpServlet {
 			}
 		}
 		datastore.put(entity);
+		
+		resp.getWriter().println(entity.getKey());
+
+		try {
+			Entity entity2 = datastore.get(entity.getKey());
+			resp.getWriter().println(entity2.getProperty("data1"));
+		} catch (EntityNotFoundException e) {
+			resp.getWriter().println("No value");
+		}
 
 
 	}
